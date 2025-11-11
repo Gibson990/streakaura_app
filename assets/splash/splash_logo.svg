@@ -1,0 +1,41 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5E17EB;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#9D4EDD;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00D1FF;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#00D1FF;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#5E17EB;stop-opacity:0.3" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background circle with gradient -->
+  <circle cx="512" cy="512" r="480" fill="url(#grad1)" opacity="0.9"/>
+  
+  <!-- Glow effect -->
+  <circle cx="512" cy="512" r="400" fill="url(#glow)"/>
+  
+  <!-- Inner circle -->
+  <circle cx="512" cy="512" r="360" fill="url(#grad1)"/>
+  
+  <!-- Letter S (larger) -->
+  <path d="M 400 360 Q 400 280 480 280 Q 560 280 560 340 Q 560 380 520 380 Q 480 380 480 340 L 480 320 L 440 320 L 440 400 Q 440 480 360 480 Q 280 480 280 420 Q 280 380 320 380 Q 360 380 360 420 L 360 440 L 400 440 L 400 360 Z" 
+        fill="white" 
+        opacity="0.95"/>
+  
+  <!-- Letter A (larger) -->
+  <path d="M 640 480 L 600 360 L 560 360 L 520 480 L 560 480 L 570 440 L 590 440 L 600 480 Z M 580 400 L 576 410 L 584 410 Z" 
+        fill="white" 
+        opacity="0.95"/>
+  
+  <!-- Sparkle effects (larger) -->
+  <circle cx="300" cy="300" r="8" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="724" cy="300" r="6" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="300" cy="724" r="6" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="724" cy="724" r="8" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="512" cy="200" r="6" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="512" cy="824" r="6" fill="#00D1FF" opacity="0.8"/>
+</svg>
+

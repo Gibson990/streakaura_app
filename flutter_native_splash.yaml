@@ -1,0 +1,47 @@
+flutter_native_splash:
+  # This package generates native code to customize Flutter's default white native splash screen
+  # with background color and splash image.
+  # Customize the parameters below, and run the following command:
+  # dart run flutter_native_splash:create
+  # To restore Flutter's default white splash screen, run:
+  # dart run flutter_native_splash:remove
+
+  # Color or image to be used as background
+  # The color will be used if image is not specified
+  color: "#0A0A0A"  # Dark background matching app theme
+  image: assets/splash/splash_logo.png
+
+  # The image will be resized to fill the entire screen
+  # If you want the image to be centered, use:
+  # image_dark: assets/images/splash_logo_1024.png
+  # color_dark: "#0A0A0A"
+
+  # Android 12+ specific configuration
+  android_12:
+    # The image parameter sets the splash screen icon
+    image: assets/splash/splash_logo.png
+    
+    # The color parameter sets the splash screen background color
+    color: "#0A0A0A"
+    
+    # The icon_background_color parameter sets the background color of the splash screen icon
+    #icon_background_color: "#5E17EB"
+    
+    # The image_dark, color_dark, and icon_background_color_dark set values that apply when the device is in dark mode
+    #image_dark: assets/images/splash_logo_1024.png
+    #color_dark: "#0A0A0A"
+    #icon_background_color_dark: "#5E17EB"
+
+  # iOS specific configuration
+  ios: true
+  image: assets/splash/splash_logo.png
+  color: "#0A0A0A"
+
+  # Web specific configuration
+  web: false
+  #image: assets/images/splash_logo_1024.png
+  #color: "#0A0A0A"
+
+  # Remove the parameter if you want the app to remain fullscreen
+  fullscreen: true
+

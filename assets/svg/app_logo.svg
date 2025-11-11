@@ -1,0 +1,41 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#5E17EB;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#9D4EDD;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00D1FF;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#00D1FF;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#5E17EB;stop-opacity:0.3" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background circle with gradient -->
+  <circle cx="256" cy="256" r="240" fill="url(#grad1)" opacity="0.9"/>
+  
+  <!-- Glow effect -->
+  <circle cx="256" cy="256" r="200" fill="url(#glow)"/>
+  
+  <!-- Inner circle -->
+  <circle cx="256" cy="256" r="180" fill="url(#grad1)"/>
+  
+  <!-- Letter S -->
+  <path d="M 200 180 Q 200 140 240 140 Q 280 140 280 170 Q 280 190 260 190 Q 240 190 240 170 L 240 160 L 220 160 L 220 200 Q 220 240 180 240 Q 140 240 140 210 Q 140 190 160 190 Q 180 190 180 210 L 180 220 L 200 220 L 200 180 Z" 
+        fill="white" 
+        opacity="0.95"/>
+  
+  <!-- Letter A -->
+  <path d="M 320 240 L 300 180 L 280 180 L 260 240 L 280 240 L 285 220 L 295 220 L 300 240 Z M 290 200 L 288 205 L 292 205 Z" 
+        fill="white" 
+        opacity="0.95"/>
+  
+  <!-- Sparkle effects -->
+  <circle cx="150" cy="150" r="4" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="362" cy="150" r="3" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="150" cy="362" r="3" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="362" cy="362" r="4" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="256" cy="100" r="3" fill="#00D1FF" opacity="0.8"/>
+  <circle cx="256" cy="412" r="3" fill="#00D1FF" opacity="0.8"/>
+</svg>
+
