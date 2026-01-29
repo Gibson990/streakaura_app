@@ -28,13 +28,22 @@ class HabitAdapter extends TypeAdapter<Habit> {
       weeklyGoal: fields[8] as int,
       currentStreak: fields[9] as int,
       template: fields[10] as String,
+      projectId: fields[11] as String?,
+      tags: (fields[12] as List?)?.cast<String>() ?? [],
+      dueDate: fields[13] as DateTime?,
+      priority: fields[14] as int? ?? 0,
+      subtasks: (fields[15] as List?)?.cast<Subtask>() ?? [],
+      timeEstimateMinutes: fields[16] as int?,
+      recurrencePattern: fields[17] as String?,
+      isArchived: fields[18] as bool? ?? false,
+      completedAt: fields[19] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Habit obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(20)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -56,7 +65,25 @@ class HabitAdapter extends TypeAdapter<Habit> {
       ..writeByte(9)
       ..write(obj.currentStreak)
       ..writeByte(10)
-      ..write(obj.template);
+      ..write(obj.template)
+      ..writeByte(11)
+      ..write(obj.projectId)
+      ..writeByte(12)
+      ..write(obj.tags)
+      ..writeByte(13)
+      ..write(obj.dueDate)
+      ..writeByte(14)
+      ..write(obj.priority)
+      ..writeByte(15)
+      ..write(obj.subtasks)
+      ..writeByte(16)
+      ..write(obj.timeEstimateMinutes)
+      ..writeByte(17)
+      ..write(obj.recurrencePattern)
+      ..writeByte(18)
+      ..write(obj.isArchived)
+      ..writeByte(19)
+      ..write(obj.completedAt);
   }
 
   @override

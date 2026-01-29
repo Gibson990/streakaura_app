@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'dart:io' show Platform;
 import '../../core/constants/app_constants.dart';
 import '../../services/payment_service.dart';
 import '../../services/apple_payment_service.dart';
 import '../../services/razorpay_payment_service.dart';
 import '../../features/pro/premium_gate.dart';
+import '../../utils/platform.dart';
 
 class PaywallScreen extends ConsumerStatefulWidget {
   const PaywallScreen({super.key});
@@ -50,39 +50,43 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               ),
               child: Column(
                 children: [
-                  const Text(
-                    '🌟',
-                    style: TextStyle(fontSize: 64),
-                  ),
+                  const Text('🌟', style: TextStyle(fontSize: 64)),
                   const Gap(16),
+
+                  if (!PaymentService.isSupportedPlatform)
+                    Text(
+                      'Purchases are only available on iOS and Android devices.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                      textAlign: TextAlign.center,
+                    ),
                   Text(
                     'Unlock Your Full Glow',
                     style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const Gap(8),
                   Text(
                     'Unlimited habits, templates, widgets & more',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Colors.white.withOpacity(0.87),
-                        ),
+                      color: Colors.white.withOpacity(0.87),
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
             const Gap(32),
-            
+
             // Subscription Options
             Text(
               'Choose Your Plan',
               style: Theme.of(context).textTheme.displayMedium,
             ),
             const Gap(16),
-            
+
             // Monthly Plan
             _SubscriptionCard(
               title: 'Monthly',
@@ -93,7 +97,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               savings: null,
             ),
             const Gap(12),
-            
+
             // Annual Plan
             _SubscriptionCard(
               title: 'Annual',
@@ -104,7 +108,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
               savings: 'Save 35%',
             ),
             const Gap(32),
-            
+
             // Features Comparison
             Text(
               'Premium Features',
@@ -118,7 +122,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             _FeatureItem(icon: '☁️', text: 'Cloud sync (coming soon)'),
             _FeatureItem(icon: '🎯', text: 'Advanced analytics'),
             const Gap(32),
-            
+
             // Error Message
             if (_errorMessage != null)
               Container(
@@ -133,10 +137,12 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                 ),
               ),
             if (_errorMessage != null) const Gap(16),
-            
+
             // Purchase Button
             FilledButton(
-              onPressed: _isLoading ? null : _handlePurchase,
+              onPressed: _isLoading || !PaymentService.isSupportedPlatform
+                  ? null
+                  : _handlePurchase,
               style: FilledButton.styleFrom(
                 backgroundColor: AppConstants.accentTeal,
                 foregroundColor: Colors.white,
@@ -155,9 +161,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                       ),
                     )
                   : Text(
-                      Platform.isIOS
+                      platformIsIOS
                           ? 'Subscribe with Apple Pay'
-                          : 'Subscribe with UPI',
+                          : platformIsAndroid
+                          ? 'Subscribe with UPI'
+                          : 'Purchases unavailable on ${platformOperatingSystem.toUpperCase()}',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -165,7 +173,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                     ),
             ),
             const Gap(16),
-            
+
             // Terms & Privacy
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -200,7 +208,17 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
   Future<void> _handlePurchase() async {
     // Show payment method selection dialog
     if (!mounted) return;
-    
+
+    if (!PaymentService.isSupportedPlatform) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('In-app purchases are not available on this platform.'),
+        ),
+      );
+      return;
+    }
+
     final paymentMethod = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -208,16 +226,20 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.apple, color: Colors.white),
-              title: const Text('Apple Pay'),
-              subtitle: const Text('Pay with Apple Pay'),
-              onTap: () => Navigator.of(ctx).pop('apple'),
-            ),
-            if (Platform.isAndroid) ...[
+            if (platformIsIOS)
+              ListTile(
+                leading: const Icon(Icons.apple, color: Colors.white),
+                title: const Text('Apple Pay'),
+                subtitle: const Text('Pay with Apple Pay'),
+                onTap: () => Navigator.of(ctx).pop('apple'),
+              ),
+            if (platformIsAndroid) ...[
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.account_balance_wallet, color: Colors.white),
+                leading: const Icon(
+                  Icons.account_balance_wallet,
+                  color: Colors.white,
+                ),
                 title: const Text('UPI'),
                 subtitle: const Text('Pay with UPI'),
                 onTap: () => Navigator.of(ctx).pop('upi'),
@@ -243,7 +265,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
 
     try {
       PaymentService paymentService;
-      if (paymentMethod == 'apple' || Platform.isIOS) {
+      if (paymentMethod == 'apple' || platformIsIOS) {
         paymentService = ApplePaymentService();
       } else {
         paymentService = RazorpayPaymentService();
@@ -256,7 +278,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       if (success && mounted) {
         // Refresh premium status
         PremiumGate.refresh();
-        
+
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -368,9 +390,7 @@ class _SubscriptionCard extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isSelected
-                      ? AppConstants.accentTeal
-                      : Colors.white54,
+                  color: isSelected ? AppConstants.accentTeal : Colors.white54,
                   width: 2,
                 ),
                 color: isSelected
@@ -378,11 +398,7 @@ class _SubscriptionCard extends StatelessWidget {
                     : Colors.transparent,
               ),
               child: isSelected
-                  ? const Icon(
-                      Icons.check,
-                      size: 16,
-                      color: Colors.white,
-                    )
+                  ? const Icon(Icons.check, size: 16, color: Colors.white)
                   : null,
             ),
             const Gap(16),
@@ -425,9 +441,9 @@ class _SubscriptionCard extends StatelessWidget {
                     children: [
                       Text(
                         price,
-                        style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                              fontSize: 28,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.displayLarge?.copyWith(fontSize: 28),
                       ),
                       const Gap(4),
                       Padding(
@@ -453,10 +469,7 @@ class _FeatureItem extends StatelessWidget {
   final String icon;
   final String text;
 
-  const _FeatureItem({
-    required this.icon,
-    required this.text,
-  });
+  const _FeatureItem({required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -467,10 +480,7 @@ class _FeatureItem extends StatelessWidget {
           Text(icon, style: const TextStyle(fontSize: 24)),
           const Gap(12),
           Expanded(
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
+            child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
           ),
           const Icon(
             Icons.check_circle,
@@ -482,4 +492,3 @@ class _FeatureItem extends StatelessWidget {
     );
   }
 }
-

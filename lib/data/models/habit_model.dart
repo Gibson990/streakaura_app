@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import 'subtask_model.dart';
+
 part 'habit_model.g.dart';
 
 @HiveType(typeId: 0)
@@ -37,6 +39,33 @@ class Habit extends HiveObject {
   
   @HiveField(10)
   String template;
+
+  @HiveField(11)
+  String? projectId;
+
+  @HiveField(12)
+  List<String> tags;
+
+  @HiveField(13)
+  DateTime? dueDate;
+
+  @HiveField(14)
+  int priority; // 0=none, 1=low, 2=medium, 3=high
+
+  @HiveField(15)
+  List<Subtask> subtasks;
+
+  @HiveField(16)
+  int? timeEstimateMinutes; // Store as minutes for Hive compatibility
+
+  @HiveField(17)
+  String? recurrencePattern;
+
+  @HiveField(18)
+  bool isArchived;
+
+  @HiveField(19)
+  DateTime? completedAt;
   
   Habit({
     required this.id,
@@ -50,7 +79,26 @@ class Habit extends HiveObject {
     this.weeklyGoal = 7,
     this.currentStreak = 0,
     this.template = 'custom',
-  });
+    this.projectId,
+    List<String>? tags,
+    this.dueDate,
+    this.priority = 0,
+    List<Subtask>? subtasks,
+    this.timeEstimateMinutes,
+    this.recurrencePattern,
+    this.isArchived = false,
+    this.completedAt,
+  })  : tags = tags ?? [],
+        subtasks = subtasks ?? [];
+
+  Duration? get timeEstimate => 
+      timeEstimateMinutes != null 
+          ? Duration(minutes: timeEstimateMinutes!) 
+          : null;
+
+  set timeEstimate(Duration? value) {
+    timeEstimateMinutes = value?.inMinutes;
+  }
 
   int get longestStreak {
     if (checkIns.isEmpty) return 0;

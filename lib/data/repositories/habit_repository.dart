@@ -17,6 +17,54 @@ class HabitRepository {
     return _localBox.values.toList();
   }
 
+  List<Habit> getHabitsByProject(String projectId) {
+    return _localBox.values
+        .where((h) => h.projectId == projectId && !h.isArchived)
+        .toList();
+  }
+
+  List<Habit> getHabitsByTag(String tagId) {
+    return _localBox.values
+        .where((h) => h.tags.contains(tagId) && !h.isArchived)
+        .toList();
+  }
+
+  List<Habit> getHabitsByDueDate(DateTime date) {
+    final dateOnly = DateTime(date.year, date.month, date.day);
+    return _localBox.values
+        .where((h) {
+          if (h.dueDate == null || h.isArchived) return false;
+          final habitDateOnly = DateTime(
+            h.dueDate!.year,
+            h.dueDate!.month,
+            h.dueDate!.day,
+          );
+          return habitDateOnly.isAtSameMomentAs(dateOnly);
+        })
+        .toList();
+  }
+
+  List<Habit> getHabitsByPriority(int priority) {
+    return _localBox.values
+        .where((h) => h.priority == priority && !h.isArchived)
+        .toList();
+  }
+
+  List<Habit> searchHabits(String query) {
+    final lowerQuery = query.toLowerCase();
+    return _localBox.values
+        .where((h) {
+          if (h.isArchived) return false;
+          return h.name.toLowerCase().contains(lowerQuery) ||
+              (h.description?.toLowerCase().contains(lowerQuery) ?? false);
+        })
+        .toList();
+  }
+
+  List<Habit> getArchivedHabits() {
+    return _localBox.values.where((h) => h.isArchived).toList();
+  }
+
   Future<void> addHabit(Habit habit) async {
     await _localBox.put(habit.id, habit);
     
@@ -36,6 +84,24 @@ class HabitRepository {
     
     // Cloud sync skipped as Firebase is not initialized
     // if (firestore != null && userId != null) { ... }
+  }
+
+  Future<void> archiveHabit(String id) async {
+    final habit = _localBox.get(id);
+    if (habit != null) {
+      habit.isArchived = true;
+      habit.completedAt = DateTime.now();
+      await habit.save();
+    }
+  }
+
+  Future<void> unarchiveHabit(String id) async {
+    final habit = _localBox.get(id);
+    if (habit != null) {
+      habit.isArchived = false;
+      habit.completedAt = null;
+      await habit.save();
+    }
   }
 
   Future<void> syncFromCloud() async {

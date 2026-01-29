@@ -92,6 +92,82 @@ class HabitService {
   Future<void> deleteHabit(String id) async {
     await _repository.deleteHabit(id);
   }
+
+  Future<void> archiveHabit(String id) async {
+    await _repository.archiveHabit(id);
+  }
+
+  Future<void> unarchiveHabit(String id) async {
+    await _repository.unarchiveHabit(id);
+  }
   
   // Other habit-related business logic can go here
 }
+
+// Filtered Providers
+final todayHabitsProvider = Provider<List<Habit>>((ref) {
+  final allHabits = ref.watch(habitsListProvider);
+  final today = DateTime.now();
+  final todayMidnight = DateTime(today.year, today.month, today.day);
+  
+  return allHabits.where((habit) {
+    if (habit.isArchived) return false;
+    // Show habits due today or overdue
+    if (habit.dueDate != null) {
+      final dueDateMidnight = DateTime(
+        habit.dueDate!.year,
+        habit.dueDate!.month,
+        habit.dueDate!.day,
+      );
+      return dueDateMidnight.isBefore(todayMidnight) || 
+             dueDateMidnight.isAtSameMomentAs(todayMidnight);
+    }
+    // Show daily habits that haven't been checked in today
+    if (habit.isDaily) {
+      final hasCheckedInToday = habit.checkIns.any((d) {
+        final checkInMidnight = DateTime(d.year, d.month, d.day);
+        return checkInMidnight.isAtSameMomentAs(todayMidnight);
+      });
+      return !hasCheckedInToday;
+    }
+    return false;
+  }).toList();
+});
+
+final upcomingHabitsProvider = Provider<List<Habit>>((ref) {
+  final allHabits = ref.watch(habitsListProvider);
+  final today = DateTime.now();
+  final todayMidnight = DateTime(today.year, today.month, today.day);
+  
+  return allHabits.where((habit) {
+    if (habit.isArchived || habit.dueDate == null) return false;
+    final dueDateMidnight = DateTime(
+      habit.dueDate!.year,
+      habit.dueDate!.month,
+      habit.dueDate!.day,
+    );
+    return dueDateMidnight.isAfter(todayMidnight);
+  }).toList()
+    ..sort((a, b) => a.dueDate!.compareTo(b.dueDate!));
+});
+
+final habitsByProjectProvider = Provider.family<List<Habit>, String>((ref, projectId) {
+  final repository = ref.watch(habitRepositoryProvider);
+  return repository.getHabitsByProject(projectId);
+});
+
+final habitsByTagProvider = Provider.family<List<Habit>, String>((ref, tagId) {
+  final repository = ref.watch(habitRepositoryProvider);
+  return repository.getHabitsByTag(tagId);
+});
+
+final archivedHabitsProvider = Provider<List<Habit>>((ref) {
+  final repository = ref.watch(habitRepositoryProvider);
+  return repository.getArchivedHabits();
+});
+
+final searchHabitsProvider = Provider.family<List<Habit>, String>((ref, query) {
+  if (query.isEmpty) return [];
+  final repository = ref.watch(habitRepositoryProvider);
+  return repository.searchHabits(query);
+});

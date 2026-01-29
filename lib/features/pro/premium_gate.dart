@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/apple_payment_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../core/constants/app_constants.dart';
-import 'dart:io' show Platform;
+import '../../utils/platform.dart';
 
 class PremiumGate {
   static bool _cachedPremiumStatus = false;
@@ -18,25 +18,27 @@ class PremiumGate {
 
   /// Refresh premium status from payment service
   static Future<void> refresh() async {
-    if (Platform.isIOS) {
+    if (platformIsIOS) {
       _cachedPremiumStatus = await ApplePaymentService.checkPremiumStatus();
     } else {
       // For Android/Razorpay, check local storage
       // In production, verify with backend
       final settingsBox = Hive.box(AppConstants.settingsBox);
-      _cachedPremiumStatus = settingsBox.get('is_premium', defaultValue: false) as bool;
+      _cachedPremiumStatus =
+          settingsBox.get('is_premium', defaultValue: false) as bool;
     }
     _hasChecked = true;
   }
 
   /// Internal refresh (synchronous, uses cache)
   static void _refresh() {
-    if (Platform.isIOS) {
+    if (platformIsIOS) {
       // For iOS, we need async check, so default to false until checked
       _cachedPremiumStatus = false;
     } else {
       final settingsBox = Hive.box(AppConstants.settingsBox);
-      _cachedPremiumStatus = settingsBox.get('is_premium', defaultValue: false) as bool;
+      _cachedPremiumStatus =
+          settingsBox.get('is_premium', defaultValue: false) as bool;
     }
     _hasChecked = true;
   }
@@ -55,4 +57,3 @@ final premiumStatusProvider = FutureProvider<bool>((ref) async {
   await PremiumGate.refresh();
   return PremiumGate.isPremium;
 });
-

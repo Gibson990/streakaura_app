@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'core/theme/app_theme.dart';
 import 'core/constants/app_constants.dart';
-import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/main_navigation_screen.dart';
 import 'presentation/screens/onboarding_screen.dart';
 
 class StreakAuraApp extends StatelessWidget {
@@ -30,7 +30,7 @@ class StreakAuraApp extends StatelessWidget {
     final hasCompletedOnboarding = settingsBox.get('onboarding_completed', defaultValue: false) as bool;
     
     if (hasCompletedOnboarding) {
-      return const HomeScreen();
+      return const MainNavigationScreen();
     } else {
       return const OnboardingScreen();
     }

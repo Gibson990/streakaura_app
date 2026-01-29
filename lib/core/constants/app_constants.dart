@@ -4,6 +4,8 @@ class AppConstants {
   static const String appName = 'StreakAura';
   static const String habitsBox = 'habits';
   static const String settingsBox = 'settings';
+  static const String projectsBox = 'projects';
+  static const String tagsBox = 'tags';
   static const int freeHabitLimit = 3;
   
   // Colors

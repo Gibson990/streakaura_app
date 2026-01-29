@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/constants/app_constants.dart';
 import '../../data/models/habit_model.dart';
+import '../../data/models/subtask_model.dart';
 import '../../providers/habit_provider.dart';
 import '../../features/pro/premium_gate.dart';
 import '../../services/notification_service.dart';
+import '../../presentation/widgets/project_selector.dart';
+import '../../presentation/widgets/tag_selector.dart';
+import '../../presentation/widgets/subtask_list.dart';
+import '../../presentation/widgets/cupertino_date_picker_dialog.dart';
 import 'paywall_screen.dart';
 
 class AddEditHabitScreen extends ConsumerStatefulWidget {
@@ -29,6 +35,13 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
   bool _isDaily = true;
   int _weeklyGoal = 7;
   TimeOfDay? _reminderTime;
+  String? _selectedProjectId;
+  List<String> _selectedTagIds = [];
+  DateTime? _dueDate;
+  int _priority = 0;
+  List<Subtask> _subtasks = [];
+  Duration? _timeEstimate;
+  String? _recurrencePattern;
 
   @override
   void initState() {
@@ -41,6 +54,13 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
       _isDaily = habit.isDaily;
       _weeklyGoal = habit.weeklyGoal;
       _reminderTime = habit.reminderTime;
+      _selectedProjectId = habit.projectId;
+      _selectedTagIds = List.from(habit.tags);
+      _dueDate = habit.dueDate;
+      _priority = habit.priority;
+      _subtasks = List.from(habit.subtasks);
+      _timeEstimate = habit.timeEstimate;
+      _recurrencePattern = habit.recurrencePattern;
     }
   }
 
@@ -101,7 +121,14 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
             : _descController.text.trim()
         ..isDaily = _isDaily
         ..weeklyGoal = _weeklyGoal
-        ..reminderTime = _reminderTime;
+        ..reminderTime = _reminderTime
+        ..projectId = _selectedProjectId
+        ..tags = _selectedTagIds
+        ..dueDate = _dueDate
+        ..priority = _priority
+        ..subtasks = _subtasks
+        ..timeEstimate = _timeEstimate
+        ..recurrencePattern = _recurrencePattern;
 
       await habitService.addHabit(habit);
 
@@ -137,6 +164,13 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
         currentStreak: 0,
         template: 'custom',
         reminderTime: _reminderTime,
+        projectId: _selectedProjectId,
+        tags: _selectedTagIds,
+        dueDate: _dueDate,
+        priority: _priority,
+        subtasks: _subtasks,
+        timeEstimateMinutes: _timeEstimate?.inMinutes,
+        recurrencePattern: _recurrencePattern,
       );
 
       await habitService.addHabit(habit);
@@ -154,6 +188,95 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
     }
 
     if (mounted) Navigator.of(context).pop();
+  }
+
+  void _showTimeEstimatePicker(BuildContext context) {
+    int minutes = _timeEstimate?.inMinutes ?? 15;
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Time Estimate'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('$minutes minutes'),
+              Slider(
+                value: minutes.toDouble(),
+                min: 5,
+                max: 240,
+                divisions: 47,
+                label: '$minutes minutes',
+                onChanged: (value) => setState(() => minutes = value.round()),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                this.setState(() {
+                  _timeEstimate = Duration(minutes: minutes);
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Set'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showRecurrencePicker(BuildContext context) {
+    final patterns = [
+      'None',
+      'Daily',
+      'Every 2 days',
+      'Every 3 days',
+      'Weekly',
+      'Every 2 weeks',
+      'Monthly',
+      'Every weekday',
+      'Custom',
+    ];
+    String? selected = _recurrencePattern ?? 'None';
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Recurrence Pattern'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: patterns.map((pattern) => RadioListTile<String>(
+                  title: Text(pattern),
+                  value: pattern,
+                  groupValue: selected,
+                  onChanged: (value) => setState(() => selected = value),
+                )).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                this.setState(() {
+                  _recurrencePattern = selected == 'None' ? null : selected;
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Set'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -245,6 +368,136 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
                   ),
                 ],
                 const Gap(16),
+                // Project Selector
+                ProjectSelector(
+                  selectedProjectId: _selectedProjectId,
+                  onProjectSelected: (id) {
+                    setState(() {
+                      _selectedProjectId = id;
+                    });
+                  },
+                ),
+                const Gap(12),
+                // Tag Selector
+                TagSelector(
+                  selectedTagIds: _selectedTagIds,
+                  onTagsChanged: (tags) {
+                    setState(() {
+                      _selectedTagIds = tags;
+                    });
+                  },
+                ),
+                const Gap(12),
+                // Due Date Picker
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.calendar_today, color: Colors.white70),
+                    title: const Text('Due Date'),
+                    subtitle: Text(
+                      _dueDate != null
+                          ? DateFormat('MMM d, yyyy').format(_dueDate!)
+                          : 'No due date',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    trailing: _dueDate != null
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.white54),
+                            onPressed: () => setState(() => _dueDate = null),
+                          )
+                        : null,
+                    onTap: () async {
+                      final date = await showCupertinoDatePickerDialog(
+                        context: context,
+                        initialDate: _dueDate ?? DateTime.now(),
+                        minimumDate: DateTime.now(),
+                        maximumDate: DateTime.now().add(const Duration(days: 365 * 2)),
+                      );
+                      if (date != null && mounted) {
+                        setState(() {
+                          _dueDate = date;
+                        });
+                      }
+                    },
+                  ),
+                ),
+                const Gap(12),
+                // Priority Selector
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.flag_outlined, color: Colors.white70),
+                    title: const Text('Priority'),
+                    subtitle: Text(
+                      _priority == 0
+                          ? 'None'
+                          : _priority == 1
+                              ? 'Low'
+                              : _priority == 2
+                                  ? 'Medium'
+                                  : 'High',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    trailing: PopupMenuButton<int>(
+                      onSelected: (value) => setState(() => _priority = value),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(value: 0, child: Text('None')),
+                        const PopupMenuItem(value: 1, child: Text('Low')),
+                        const PopupMenuItem(value: 2, child: Text('Medium')),
+                        const PopupMenuItem(value: 3, child: Text('High')),
+                      ],
+                    ),
+                  ),
+                ),
+                const Gap(12),
+                // Subtasks
+                SubtaskList(
+                  subtasks: _subtasks,
+                  onSubtasksChanged: (subtasks) {
+                    setState(() {
+                      _subtasks = subtasks;
+                    });
+                  },
+                ),
+                const Gap(12),
+                // Time Estimate
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.timer_outlined, color: Colors.white70),
+                    title: const Text('Time Estimate'),
+                    subtitle: Text(
+                      _timeEstimate != null
+                          ? '${_timeEstimate!.inMinutes} minutes'
+                          : 'No estimate',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    trailing: _timeEstimate != null
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.white54),
+                            onPressed: () => setState(() => _timeEstimate = null),
+                          )
+                        : null,
+                    onTap: () => _showTimeEstimatePicker(context),
+                  ),
+                ),
+                const Gap(12),
+                // Recurrence Pattern
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.repeat, color: Colors.white70),
+                    title: const Text('Recurrence'),
+                    subtitle: Text(
+                      _recurrencePattern ?? 'None',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    trailing: _recurrencePattern != null
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, color: Colors.white54),
+                            onPressed: () => setState(() => _recurrencePattern = null),
+                          )
+                        : null,
+                    onTap: () => _showRecurrencePicker(context),
+                  ),
+                ),
+                const Gap(16),
                 // Reminder Time Picker
                 Card(
                   child: ListTile(
@@ -271,22 +524,9 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
                           )
                         : null,
                     onTap: () async {
-                      final time = await showTimePicker(
+                      final time = await showCupertinoTimePickerDialog(
                         context: context,
                         initialTime: _reminderTime ?? TimeOfDay.now(),
-                        builder: (context, child) {
-                          return Theme(
-                            data: Theme.of(context).copyWith(
-                              colorScheme: ColorScheme.dark(
-                                primary: AppConstants.accentTeal,
-                                onPrimary: Colors.white,
-                                surface: const Color(0xFF1A1A1A),
-                                onSurface: Colors.white,
-                              ),
-                            ),
-                            child: child!,
-                          );
-                        },
                       );
                       if (time != null && mounted) {
                         setState(() {

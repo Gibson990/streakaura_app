@@ -12,13 +12,16 @@ import '../../presentation/widgets/badge_dialog.dart';
 import '../../presentation/widgets/streak_milestone_dialog.dart';
 import 'add_edit_habit_screen.dart';
 import 'settings_screen.dart';
+import 'search_screen.dart';
+import 'archive_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final habits = ref.watch(habitsListProvider);
+    final allHabits = ref.watch(habitsListProvider);
+    final habits = allHabits.where((h) => !h.isArchived).toList();
     final habitService = ref.read(habitServiceProvider);
     final auraScore = AuraScoreService.calculateAuraScore(habits);
     
@@ -29,8 +32,24 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppConstants.appName),
+        title: const Text('All Habits'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.search, color: Colors.white),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const SearchScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.archive_outlined, color: Colors.white),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ArchiveScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.white),
             onPressed: () {
@@ -99,16 +118,18 @@ class HomeScreen extends ConsumerWidget {
                                   (habit.currentStreak == 30 && oldStreak < 30) ||
                                   (habit.currentStreak == 100 && oldStreak < 100);
                               
-                              if (isMilestone && context.mounted) {
+                              if (isMilestone) {
                                 await SoundService.playStreakMilestoneSound();
-                                await showDialog(
-                                  context: context,
-                                  builder: (_) => StreakMilestoneDialog(
-                                    streak: habit.currentStreak,
-                                    habitName: habit.name,
-                                    emoji: habit.emoji,
-                                  ),
-                                );
+                                if (context.mounted) {
+                                  await showDialog(
+                                    context: context,
+                                    builder: (_) => StreakMilestoneDialog(
+                                      streak: habit.currentStreak,
+                                      habitName: habit.name,
+                                      emoji: habit.emoji,
+                                    ),
+                                  );
+                                }
                               }
                               
                               // Check for badge unlock
@@ -120,13 +141,15 @@ class HomeScreen extends ConsumerWidget {
                                 newAuraScore,
                               );
                               
-                              if (newBadge != null && context.mounted) {
+                              if (newBadge != null) {
                                 // Play achievement sound
                                 await SoundService.playAchievementSound();
-                                await showDialog(
-                                  context: context,
-                                  builder: (_) => BadgeDialog(badge: newBadge),
-                                );
+                                if (context.mounted) {
+                                  await showDialog(
+                                    context: context,
+                                    builder: (_) => BadgeDialog(badge: newBadge),
+                                  );
+                                }
                               }
                             },
                           ),
