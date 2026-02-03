@@ -7,6 +7,7 @@ import '../../services/aura_score_service.dart';
 import '../../services/gamification_service.dart';
 import '../../services/widget_service.dart';
 import '../../services/sound_service.dart';
+import '../../services/progression_service.dart';
 import '../../presentation/widgets/aura_score_ring.dart';
 import '../../presentation/widgets/badge_dialog.dart';
 import '../../presentation/widgets/streak_milestone_dialog.dart';
@@ -21,6 +22,17 @@ class HomeScreen extends ConsumerWidget {
     final habits = ref.watch(habitsListProvider);
     final habitService = ref.read(habitServiceProvider);
     final auraScore = AuraScoreService.calculateAuraScore(habits);
+    final xp = ProgressionService.calculateXp(habits);
+    final level = ProgressionService.levelForXp(xp);
+    final levelProgress = ProgressionService.levelProgress(xp);
+    final xpToNext = ProgressionService.xpToNextLevel(xp);
+    final today = DateTime.now();
+    final completedToday = habits.where((habit) {
+      return habit.checkIns.any((d) =>
+          d.year == today.year && d.month == today.month && d.day == today.day);
+    }).length;
+    final dailyGoal = habits.isEmpty ? 1 : habits.length;
+    final dailyProgress = completedToday / dailyGoal;
     
     // Update widget when habits change
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -32,7 +44,7 @@ class HomeScreen extends ConsumerWidget {
         title: const Text(AppConstants.appName),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings, color: Colors.white),
+            icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const SettingsScreen()),
@@ -75,6 +87,99 @@ class HomeScreen extends ConsumerWidget {
                           'Your Daily Glow',
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
+                        const SizedBox(height: 16),
+                        Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withOpacity(0.12),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(Icons.flash_on),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Glow Level $level',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .displayMedium,
+                                          ),
+                                          Text(
+                                            '$xp XP • $xpToNext XP to next level',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodySmall,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: LinearProgressIndicator(
+                                    value: levelProgress,
+                                    minHeight: 8,
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceVariant,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Daily Quest',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge,
+                                    ),
+                                    const Spacer(),
+                                    Text(
+                                      '$completedToday/$dailyGoal completed',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: LinearProgressIndicator(
+                                    value: dailyProgress,
+                                    minHeight: 8,
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceVariant,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -93,6 +198,7 @@ class HomeScreen extends ConsumerWidget {
                             onToggle: () async {
                               final oldStreak = habit.currentStreak;
                               await habitService.toggleCheckIn(habit);
+                              await SoundService.playCheckInSound();
                               
                               // Check for streak milestone (7, 30, 100 days)
                               final isMilestone = (habit.currentStreak == 7 && oldStreak < 7) ||

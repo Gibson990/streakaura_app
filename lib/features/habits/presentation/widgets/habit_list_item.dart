@@ -77,7 +77,9 @@ class _HabitListItemState extends State<HabitListItem>
                   Text(
                     'Longest: ${widget.habit.longestStreak} days',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.white60,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurfaceVariant,
                           fontSize: 12,
                         ),
                   ),
@@ -112,12 +114,12 @@ class _HabitListItemState extends State<HabitListItem>
                         decoration: BoxDecoration(
                           color: isCheckedIn
                               ? AppConstants.accentTeal
-                              : AppConstants.frostedGlass,
+                              : Theme.of(context).colorScheme.surfaceVariant,
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: isCheckedIn
                                 ? Colors.transparent
-                                : Colors.white54,
+                                : Theme.of(context).colorScheme.outline,
                             width: 2,
                           ),
                           boxShadow: isCheckedIn
@@ -133,8 +135,11 @@ class _HabitListItemState extends State<HabitListItem>
                         child: isCheckedIn
                             ? const Icon(Icons.check,
                                 color: Colors.white, size: 30)
-                            : const Icon(Icons.add,
-                                color: Colors.white54, size: 30),
+                            : Icon(Icons.add,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                                size: 30),
                       ),
                     ),
                   ],

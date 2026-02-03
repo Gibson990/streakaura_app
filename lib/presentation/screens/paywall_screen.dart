@@ -67,7 +67,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                   Text(
                     'Unlimited habits, templates, widgets & more',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Colors.white.withOpacity(0.87),
+                          color: Colors.white.withOpacity(0.87),
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -176,7 +176,12 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                   },
                   child: const Text('Terms of Service'),
                 ),
-                const Text(' • ', style: TextStyle(color: Colors.white54)),
+                Text(
+                  ' • ',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
                 TextButton(
                   onPressed: () {
                     // TODO: Open privacy URL
@@ -209,7 +214,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.apple, color: Colors.white),
+              leading: const Icon(Icons.apple),
               title: const Text('Apple Pay'),
               subtitle: const Text('Pay with Apple Pay'),
               onTap: () => Navigator.of(ctx).pop('apple'),
@@ -217,7 +222,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             if (Platform.isAndroid) ...[
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.account_balance_wallet, color: Colors.white),
+                leading: const Icon(Icons.account_balance_wallet),
                 title: const Text('UPI'),
                 subtitle: const Text('Pay with UPI'),
                 onTap: () => Navigator.of(ctx).pop('upi'),
@@ -346,35 +351,35 @@ class _SubscriptionCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(20.0),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppConstants.accentTeal.withOpacity(0.2)
-              : AppConstants.frostedGlass,
-          border: Border.all(
-            color: isSelected
-                ? AppConstants.accentTeal
-                : Colors.white.withOpacity(0.1),
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(16),
-        ),
+          child: Container(
+            padding: const EdgeInsets.all(20.0),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? AppConstants.accentTeal.withOpacity(0.2)
+                  : Theme.of(context).colorScheme.surface,
+              border: Border.all(
+                color: isSelected
+                    ? AppConstants.accentTeal
+                    : Theme.of(context).colorScheme.outline,
+                width: isSelected ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
         child: Row(
           children: [
             Container(
               width: 24,
               height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected
+                        ? AppConstants.accentTeal
+                        : Theme.of(context).colorScheme.outline,
+                    width: 2,
+                  ),
                   color: isSelected
                       ? AppConstants.accentTeal
-                      : Colors.white54,
-                  width: 2,
-                ),
-                color: isSelected
-                    ? AppConstants.accentTeal
                     : Colors.transparent,
               ),
               child: isSelected
@@ -482,4 +487,3 @@ class _FeatureItem extends StatelessWidget {
     );
   }
 }
-

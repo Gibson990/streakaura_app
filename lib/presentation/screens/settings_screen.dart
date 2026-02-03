@@ -39,7 +39,7 @@ class SettingsScreen extends ConsumerWidget {
                         isPremium ? Icons.star : Icons.star_border,
                         color: isPremium
                             ? AppConstants.accentTeal
-                            : Colors.white70,
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       const Gap(12),
                       Expanded(
@@ -92,10 +92,10 @@ class SettingsScreen extends ConsumerWidget {
           const Gap(16),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.auto_awesome, color: Colors.white),
-              title: const Text('Glow Templates', style: TextStyle(color: Colors.white)),
-              subtitle: const Text('Pre-made habit packs to get started', style: TextStyle(color: Colors.white70)),
-              trailing: const Icon(Icons.chevron_right, color: Colors.white),
+              leading: const Icon(Icons.auto_awesome),
+              title: const Text('Glow Templates'),
+              subtitle: const Text('Pre-made habit packs to get started'),
+              trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const TemplatesScreen()),
@@ -112,13 +112,13 @@ class SettingsScreen extends ConsumerWidget {
           const Gap(16),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.emoji_events, color: Colors.white),
-              title: const Text('View Badges', style: TextStyle(color: Colors.white)),
+              leading: const Icon(Icons.emoji_events),
+              title: const Text('View Badges'),
               subtitle: Text(
                 '${gamification.GamificationService.getUnlockedBadgesOverall(habits, AuraScoreService.calculateAuraScore(habits)).length}/${gamification.GamificationService.allBadges.length} unlocked',
-                style: const TextStyle(color: Colors.white70),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              trailing: const Icon(Icons.chevron_right, color: Colors.white),
+              trailing: const Icon(Icons.chevron_right),
               onTap: () {
                 _showBadgesDialog(context, habits);
               },
@@ -133,15 +133,15 @@ class SettingsScreen extends ConsumerWidget {
           const Gap(12),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.picture_as_pdf, color: Colors.white),
-              title: const Text('Export Habit Report', style: TextStyle(color: Colors.white)),
+              leading: const Icon(Icons.picture_as_pdf),
+              title: const Text('Export Habit Report'),
               subtitle: Text(
                 isPremium
                     ? 'Generate PDF report of your progress'
                     : 'Premium feature - Upgrade to export',
-                style: const TextStyle(color: Colors.white70),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
-              trailing: const Icon(Icons.chevron_right, color: Colors.white),
+              trailing: const Icon(Icons.chevron_right),
               onTap: isPremium
                   ? () async {
                       if (!context.mounted) return;
@@ -190,19 +190,17 @@ class SettingsScreen extends ConsumerWidget {
           const Gap(16),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.info_outline, color: Colors.white70),
+              leading: const Icon(Icons.info_outline),
               title: const Text('App Version'),
               subtitle: const Text('1.0.0'),
-              textColor: Colors.white,
             ),
           ),
           const Gap(8),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.favorite, color: Colors.white70),
+              leading: const Icon(Icons.favorite),
               title: const Text('Made with ❤️'),
               subtitle: Text(AppConstants.tagline),
-              textColor: Colors.white,
             ),
           ),
           const Gap(48),
@@ -244,39 +242,52 @@ class SettingsScreen extends ConsumerWidget {
                   badge.emoji,
                   style: TextStyle(
                     fontSize: 32,
-                    color: isUnlocked ? null : Colors.grey,
+                    color: isUnlocked
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 title: Text(
                   badge.name,
                   style: TextStyle(
-                    color: isUnlocked ? Colors.white : Colors.white54,
+                    color: isUnlocked
+                        ? Theme.of(context).colorScheme.onSurface
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                     fontWeight: isUnlocked ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
                 subtitle: Text(
                   badge.description,
                   style: TextStyle(
-                    color: isUnlocked ? Colors.white70 : Colors.white38,
+                    color: isUnlocked
+                        ? Theme.of(context).colorScheme.onSurfaceVariant
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurfaceVariant
+                            .withOpacity(0.6),
                   ),
                 ),
                 trailing: isUnlocked
                     ? const Icon(Icons.check_circle, color: AppConstants.accentTeal)
-                    : const Icon(Icons.lock, color: Colors.white38),
+                    : Icon(
+                        Icons.lock,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline, color: Colors.white70, size: 20),
+                        Icon(
+                          Icons.info_outline,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'How to unlock: ${gamification.GamificationService.getBadgeRequirement(badge.id)}',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ),
                       ],
@@ -297,4 +308,3 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 }
-

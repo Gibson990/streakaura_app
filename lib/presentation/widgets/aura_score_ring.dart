@@ -83,8 +83,8 @@ class _AuraScoreRingState extends State<AuraScoreRing>
         shape: BoxShape.circle,
         gradient: RadialGradient(
           colors: [
-            AppConstants.primaryIndigo.withOpacity(0.3),
-            Colors.transparent,
+            AppConstants.primaryIndigo.withOpacity(0.18),
+            Theme.of(context).colorScheme.background,
           ],
         ),
       ),
@@ -99,7 +99,7 @@ class _AuraScoreRingState extends State<AuraScoreRing>
               value: 1.0,
               strokeWidth: strokeWidth,
               valueColor: AlwaysStoppedAnimation<Color>(
-                AppConstants.frostedGlass,
+                Theme.of(context).colorScheme.surfaceVariant,
               ),
               backgroundColor: Colors.transparent,
             ),
@@ -146,6 +146,7 @@ class _AuraScoreRingState extends State<AuraScoreRing>
                 AuraScoreService.getAuraLabel(widget.score),
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontSize: widget.size * 0.06,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ],
@@ -155,4 +156,3 @@ class _AuraScoreRingState extends State<AuraScoreRing>
     );
   }
 }
-
