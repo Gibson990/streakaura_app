@@ -97,11 +97,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             // Annual Plan
             _SubscriptionCard(
               title: 'Annual',
-              price: '\$39',
+              price: '\$29.99',
               period: 'per year',
               isSelected: _selectedAnnual,
               onTap: () => setState(() => _selectedAnnual = true),
-              savings: 'Save 35%',
+              savings: 'Save 50%',
             ),
             const Gap(32),
             
@@ -351,36 +351,34 @@ class _SubscriptionCard extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppConstants.accentTeal.withOpacity(0.2)
-                  : Theme.of(context).colorScheme.surface,
-              border: Border.all(
-                color: isSelected
-                    ? AppConstants.accentTeal
-                    : Theme.of(context).colorScheme.outline,
-                width: isSelected ? 2 : 1,
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
+      child: Container(
+        padding: const EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppConstants.accentTeal.withOpacity(0.2)
+              : Theme.of(context).colorScheme.surface,
+          border: Border.all(
+            color: isSelected
+                ? AppConstants.accentTeal
+                : Theme.of(context).colorScheme.outline,
+            width: isSelected ? 2 : 1,
+          ),
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Row(
           children: [
             Container(
               width: 24,
               height: 24,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected
-                        ? AppConstants.accentTeal
-                        : Theme.of(context).colorScheme.outline,
-                    width: 2,
-                  ),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
                   color: isSelected
                       ? AppConstants.accentTeal
-                    : Colors.transparent,
+                      : Theme.of(context).colorScheme.outline,
+                  width: 2,
+                ),
+                color: isSelected ? AppConstants.accentTeal : Colors.transparent,
               ),
               child: isSelected
                   ? const Icon(
