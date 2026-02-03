@@ -181,6 +181,14 @@ class TemplatesScreen extends ConsumerWidget {
                               side: BorderSide(
                                 color: template.color.withOpacity(0.3),
                               ),
+                              labelStyle: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface,
+                                  ),
                             );
                           }).toList(),
                         ),
@@ -283,4 +291,3 @@ class TemplatesScreen extends ConsumerWidget {
     }
   }
 }
-

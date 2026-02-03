@@ -67,7 +67,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                   Text(
                     'Unlimited habits, templates, widgets & more',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                  color: Colors.white.withOpacity(0.87),
+                          color: Colors.white.withOpacity(0.87),
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -97,11 +97,11 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             // Annual Plan
             _SubscriptionCard(
               title: 'Annual',
-              price: '\$39',
+              price: '\$29.99',
               period: 'per year',
               isSelected: _selectedAnnual,
               onTap: () => setState(() => _selectedAnnual = true),
-              savings: 'Save 35%',
+              savings: 'Save 50%',
             ),
             const Gap(32),
             
@@ -176,7 +176,12 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
                   },
                   child: const Text('Terms of Service'),
                 ),
-                const Text(' • ', style: TextStyle(color: Colors.white54)),
+                Text(
+                  ' • ',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
                 TextButton(
                   onPressed: () {
                     // TODO: Open privacy URL
@@ -209,7 +214,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.apple, color: Colors.white),
+              leading: const Icon(Icons.apple),
               title: const Text('Apple Pay'),
               subtitle: const Text('Pay with Apple Pay'),
               onTap: () => Navigator.of(ctx).pop('apple'),
@@ -217,7 +222,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             if (Platform.isAndroid) ...[
               const Divider(),
               ListTile(
-                leading: const Icon(Icons.account_balance_wallet, color: Colors.white),
+                leading: const Icon(Icons.account_balance_wallet),
                 title: const Text('UPI'),
                 subtitle: const Text('Pay with UPI'),
                 onTap: () => Navigator.of(ctx).pop('upi'),
@@ -351,11 +356,11 @@ class _SubscriptionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? AppConstants.accentTeal.withOpacity(0.2)
-              : AppConstants.frostedGlass,
+              : Theme.of(context).colorScheme.surface,
           border: Border.all(
             color: isSelected
                 ? AppConstants.accentTeal
-                : Colors.white.withOpacity(0.1),
+                : Theme.of(context).colorScheme.outline,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(16),
@@ -370,12 +375,10 @@ class _SubscriptionCard extends StatelessWidget {
                 border: Border.all(
                   color: isSelected
                       ? AppConstants.accentTeal
-                      : Colors.white54,
+                      : Theme.of(context).colorScheme.outline,
                   width: 2,
                 ),
-                color: isSelected
-                    ? AppConstants.accentTeal
-                    : Colors.transparent,
+                color: isSelected ? AppConstants.accentTeal : Colors.transparent,
               ),
               child: isSelected
                   ? const Icon(
@@ -482,4 +485,3 @@ class _FeatureItem extends StatelessWidget {
     );
   }
 }
-

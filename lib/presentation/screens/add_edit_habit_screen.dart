@@ -209,49 +209,45 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
                   maxLines: 2,
                 ),
                 const Gap(12),
-                SwitchListTile(
-                  value: _isDaily,
-                  onChanged: (v) => setState(() => _isDaily = v),
-                  title: const Text('Daily habit'),
-                  subtitle: const Text('If off, uses weekly goal'),
-                  contentPadding: EdgeInsets.zero,
+                Text(
+                  'Schedule',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                const Gap(8),
+                SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(value: true, label: Text('Daily')),
+                    ButtonSegment(value: false, label: Text('Weekly')),
+                  ],
+                  selected: {_isDaily},
+                  onSelectionChanged: (selection) {
+                    setState(() => _isDaily = selection.first);
+                  },
                 ),
                 if (!_isDaily) ...[
-                  const Gap(8),
-                  Row(
-                    children: [
-                      Text(
-                        'Weekly goal: $_weeklyGoal',
-                        style: Theme.of(context).textTheme.bodyLarge,
+                  const Gap(12),
+                  DropdownMenu<int>(
+                    label: const Text('Weekly goal'),
+                    initialSelection: _weeklyGoal,
+                    onSelected: (value) {
+                      if (value != null) {
+                        setState(() => _weeklyGoal = value);
+                      }
+                    },
+                    dropdownMenuEntries: List.generate(
+                      7,
+                      (index) => DropdownMenuEntry(
+                        value: index + 1,
+                        label: '${index + 1} times per week',
                       ),
-                      const Spacer(),
-                      IconButton(
-                        onPressed: () => setState(
-                          () => _weeklyGoal = (_weeklyGoal > 1)
-                              ? _weeklyGoal - 1
-                              : 1,
-                        ),
-                        icon: const Icon(Icons.remove_circle_outline),
-                      ),
-                      IconButton(
-                        onPressed: () => setState(
-                          () => _weeklyGoal = (_weeklyGoal < 7)
-                              ? _weeklyGoal + 1
-                              : 7,
-                        ),
-                        icon: const Icon(Icons.add_circle_outline),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
                 const Gap(16),
                 // Reminder Time Picker
                 Card(
                   child: ListTile(
-                    leading: const Icon(
-                      Icons.notifications,
-                      color: Colors.white70,
-                    ),
+                    leading: const Icon(Icons.notifications),
                     title: const Text('Reminder Time'),
                     subtitle: Text(
                       _reminderTime != null
@@ -263,7 +259,6 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
                         ? IconButton(
                             icon: const Icon(
                               Icons.clear,
-                              color: Colors.white54,
                             ),
                             onPressed: () => setState(() {
                               _reminderTime = null;
@@ -274,19 +269,14 @@ class _AddEditHabitScreenState extends ConsumerState<AddEditHabitScreen> {
                       final time = await showTimePicker(
                         context: context,
                         initialTime: _reminderTime ?? TimeOfDay.now(),
-                        builder: (context, child) {
-                          return Theme(
-                            data: Theme.of(context).copyWith(
-                              colorScheme: ColorScheme.dark(
-                                primary: AppConstants.accentTeal,
-                                onPrimary: Colors.white,
-                                surface: const Color(0xFF1A1A1A),
-                                onSurface: Colors.white,
-                              ),
-                            ),
-                            child: child!,
-                          );
-                        },
+                        builder: (context, child) => Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: Theme.of(context)
+                                .colorScheme
+                                .copyWith(secondary: AppConstants.accentTeal),
+                          ),
+                          child: child!,
+                        ),
                       );
                       if (time != null && mounted) {
                         setState(() {
