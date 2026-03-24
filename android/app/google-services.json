@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "131335493107",
+    "project_id": "streakaura-6d1c4",
+    "storage_bucket": "streakaura-6d1c4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:131335493107:android:18236ed496f2f61854ae86",
+        "android_client_info": {
+          "package_name": "com.example.streakaura_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbL8XUH6LB4RMgV5hm5Ph3UelZjQRNrkU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

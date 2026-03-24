@@ -8,8 +8,10 @@ import '../../services/gamification_service.dart' as gamification;
 import '../../services/aura_score_service.dart';
 import '../../data/models/habit_model.dart';
 import '../../providers/habit_provider.dart';
+import '../../providers/theme_provider.dart';
 import 'templates_screen.dart';
 import 'paywall_screen.dart';
+import 'profile_screen.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -18,14 +20,30 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final habits = ref.watch(habitsListProvider);
     final isPremium = PremiumGate.isPremium;
+    final themeMode = ref.watch(themeModeProvider);
+    final themeNotifier = ref.read(themeModeProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
+          Text('Account', style: Theme.of(context).textTheme.displayMedium),
+          const Gap(16),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Profile'),
+              subtitle: const Text('Manage your account details'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                );
+              },
+            ),
+          ),
+          const Gap(32),
           // Premium Status Card
           Card(
             child: Padding(
@@ -84,11 +102,10 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const Gap(32),
+          _buildAppearanceSection(context, themeMode, themeNotifier),
+          const Gap(32),
           // Templates Section
-          Text(
-            'Templates',
-            style: Theme.of(context).textTheme.displayMedium,
-          ),
+          Text('Templates', style: Theme.of(context).textTheme.displayMedium),
           const Gap(16),
           Card(
             child: ListTile(
@@ -145,31 +162,27 @@ class SettingsScreen extends ConsumerWidget {
               onTap: isPremium
                   ? () async {
                       if (!context.mounted) return;
-                      final navigatorContext = context;
                       try {
                         final pdfBytes = await PdfService.generateHabitReport(
                           habits: habits,
                         );
+                        if (!context.mounted) return;
                         await PdfService.sharePdf(
-                          navigatorContext,
+                          context,
                           pdfBytes,
                           'StreakAura_Report.pdf',
                         );
-                        if (navigatorContext.mounted) {
-                          ScaffoldMessenger.of(navigatorContext).showSnackBar(
-                            const SnackBar(
-                              content: Text('Report exported successfully!'),
-                            ),
-                          );
-                        }
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Report exported successfully!'),
+                          ),
+                        );
                       } catch (e) {
-                        if (navigatorContext.mounted) {
-                          ScaffoldMessenger.of(navigatorContext).showSnackBar(
-                            SnackBar(
-                              content: Text('Error: $e'),
-                            ),
-                          );
-                        }
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('Error: $e')));
                       }
                     }
                   : () {
@@ -183,10 +196,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const Gap(32),
           // About Section
-          Text(
-            'About',
-            style: Theme.of(context).textTheme.displayMedium,
-          ),
+          Text('About', style: Theme.of(context).textTheme.displayMedium),
           const Gap(16),
           Card(
             child: ListTile(
@@ -209,21 +219,62 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
+  Widget _buildAppearanceSection(
+    BuildContext context,
+    ThemeMode themeMode,
+    ThemeModeNotifier themeNotifier,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Appearance', style: Theme.of(context).textTheme.displayMedium),
+        const Gap(16),
+        Card(
+          child: Column(
+            children: [
+              SwitchListTile(
+                value: themeMode == ThemeMode.dark,
+                onChanged: themeNotifier.toggleDarkMode,
+                title: const Text('Dark Mode'),
+                subtitle: const Text('Switch between light and dark themes'),
+                secondary: const Icon(Icons.dark_mode),
+              ),
+              ListTile(
+                leading: const Icon(Icons.brightness_medium),
+                title: const Text('System Default'),
+                subtitle: const Text('Follow your device theme settings'),
+                trailing: themeMode == ThemeMode.system
+                    ? const Icon(Icons.check, color: AppConstants.accentTeal)
+                    : null,
+                onTap: () => themeNotifier.setThemeMode(ThemeMode.system),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   void _showBadgesDialog(BuildContext context, List<Habit> habits) {
     final auraScore = AuraScoreService.calculateAuraScore(habits);
     final unlockedBadges = <gamification.Badge>[];
-    
+
     // Collect all unlocked badges
     for (var habit in habits) {
-      unlockedBadges.addAll(gamification.GamificationService.getUnlockedBadges(habit));
+      unlockedBadges.addAll(
+        gamification.GamificationService.getUnlockedBadges(habit),
+      );
     }
     unlockedBadges.addAll(
-      gamification.GamificationService.getUnlockedBadgesOverall(habits, auraScore),
+      gamification.GamificationService.getUnlockedBadgesOverall(
+        habits,
+        auraScore,
+      ),
     );
-    
+
     // Remove duplicates
     final uniqueBadges = unlockedBadges.toSet().toList();
-    
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -236,7 +287,7 @@ class SettingsScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final badge = gamification.GamificationService.allBadges[index];
               final isUnlocked = uniqueBadges.any((b) => b.id == badge.id);
-              
+
               return ExpansionTile(
                 leading: Text(
                   badge.emoji,
@@ -253,7 +304,9 @@ class SettingsScreen extends ConsumerWidget {
                     color: isUnlocked
                         ? Theme.of(context).colorScheme.onSurface
                         : Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: isUnlocked ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isUnlocked
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                 ),
                 subtitle: Text(
@@ -261,14 +314,16 @@ class SettingsScreen extends ConsumerWidget {
                   style: TextStyle(
                     color: isUnlocked
                         ? Theme.of(context).colorScheme.onSurfaceVariant
-                        : Theme.of(context)
-                            .colorScheme
-                            .onSurfaceVariant
-                            .withOpacity(0.6),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                   ),
                 ),
                 trailing: isUnlocked
-                    ? const Icon(Icons.check_circle, color: AppConstants.accentTeal)
+                    ? const Icon(
+                        Icons.check_circle,
+                        color: AppConstants.accentTeal,
+                      )
                     : Icon(
                         Icons.lock,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,

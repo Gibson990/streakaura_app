@@ -1,41 +1,58 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#5E17EB;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#9D4EDD;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#00D1FF;stop-opacity:1" />
-    </linearGradient>
-    <radialGradient id="glow" cx="50%" cy="50%">
-      <stop offset="0%" style="stop-color:#00D1FF;stop-opacity:0.8" />
-      <stop offset="100%" style="stop-color:#5E17EB;stop-opacity:0.3" />
+    <radialGradient id="deepSpace" cx="50%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#0f1430" />
+      <stop offset="45%" stop-color="#131b3f" />
+      <stop offset="100%" stop-color="#080a17" />
     </radialGradient>
+    <linearGradient id="auroraSweep" x1="10%" y1="90%" x2="90%" y2="10%">
+      <stop offset="0%" stop-color="#4df8ff" />
+      <stop offset="40%" stop-color="#7bf2ff" />
+      <stop offset="80%" stop-color="#ffd79a" />
+      <stop offset="100%" stop-color="#ff9fd6" />
+    </linearGradient>
+    <radialGradient id="pulse" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#ffb3ec" stop-opacity="0.8" />
+      <stop offset="55%" stop-color="#5f5bff" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#111633" stop-opacity="0" />
+    </radialGradient>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="28" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
   </defs>
-  
-  <!-- Background circle with gradient -->
-  <circle cx="512" cy="512" r="480" fill="url(#grad1)" opacity="0.9"/>
-  
-  <!-- Glow effect -->
-  <circle cx="512" cy="512" r="400" fill="url(#glow)"/>
-  
-  <!-- Inner circle -->
-  <circle cx="512" cy="512" r="360" fill="url(#grad1)"/>
-  
-  <!-- Letter S (larger) -->
-  <path d="M 400 360 Q 400 280 480 280 Q 560 280 560 340 Q 560 380 520 380 Q 480 380 480 340 L 480 320 L 440 320 L 440 400 Q 440 480 360 480 Q 280 480 280 420 Q 280 380 320 380 Q 360 380 360 420 L 360 440 L 400 440 L 400 360 Z" 
-        fill="white" 
-        opacity="0.95"/>
-  
-  <!-- Letter A (larger) -->
-  <path d="M 640 480 L 600 360 L 560 360 L 520 480 L 560 480 L 570 440 L 590 440 L 600 480 Z M 580 400 L 576 410 L 584 410 Z" 
-        fill="white" 
-        opacity="0.95"/>
-  
-  <!-- Sparkle effects (larger) -->
-  <circle cx="300" cy="300" r="8" fill="#00D1FF" opacity="0.8"/>
-  <circle cx="724" cy="300" r="6" fill="#00D1FF" opacity="0.8"/>
-  <circle cx="300" cy="724" r="6" fill="#00D1FF" opacity="0.8"/>
-  <circle cx="724" cy="724" r="8" fill="#00D1FF" opacity="0.8"/>
-  <circle cx="512" cy="200" r="6" fill="#00D1FF" opacity="0.8"/>
-  <circle cx="512" cy="824" r="6" fill="#00D1FF" opacity="0.8"/>
+
+  <!-- Rounded cosmic canvas -->
+  <rect width="1024" height="1024" rx="220" fill="url(#deepSpace)" />
+
+  <!-- Flowing aurora bands -->
+  <g filter="url(#softGlow)" opacity="0.8">
+    <path d="M120 708 Q 364 840 512 828 Q 660 816 904 640" fill="none" stroke="url(#auroraSweep)" stroke-width="120" stroke-linecap="round" />
+    <path d="M140 352 Q 384 232 560 288 Q 732 340 896 236" fill="none" stroke="url(#auroraSweep)" stroke-width="96" stroke-linecap="round" opacity="0.75" />
+  </g>
+
+  <!-- Radiant pulse center -->
+  <circle cx="520" cy="476" r="240" fill="url(#pulse)" opacity="0.85" />
+
+  <!-- StreakAura emblem -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M288 580 C288 646 352 688 448 688 C548 688 616 636 616 572 C616 520 584 492 508 468 C438 446 404 430 404 384 C404 328 460 292 544 292 C620 292 676 326 694 380" stroke="url(#auroraSweep)" stroke-width="52" />
+    <path d="M664 672 L712 436 L760 672" stroke="#ffffff" stroke-width="44" />
+    <path d="M692 564 L744 564" stroke="#ffffff" stroke-width="30" />
+  </g>
+
+  <!-- Starfield -->
+  <g fill="#8ae6ff">
+    <circle cx="256" cy="312" r="10" opacity="0.85" />
+    <circle cx="804" cy="332" r="7" opacity="0.8" />
+    <circle cx="332" cy="804" r="8" opacity="0.75" />
+    <circle cx="732" cy="796" r="9" opacity="0.82" />
+    <circle cx="520" cy="188" r="7" opacity="0.65" />
+    <circle cx="184" cy="540" r="6" opacity="0.6" />
+    <circle cx="864" cy="516" r="6" opacity="0.6" />
+  </g>
 </svg>
 
